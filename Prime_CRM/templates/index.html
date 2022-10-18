@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load django_tables2 %}
+{% block main %}
+    {% for client in clients %}
+        <p>{{ client }}</p>
+    {% endfor %}
+    <a class="btn btn-secondary" href="{{ add_url }}">Add</a>
+    {% render_table table %}
+{% endblock %}
+
+
+{% block extra %}
+
+{% endblock %}
+
