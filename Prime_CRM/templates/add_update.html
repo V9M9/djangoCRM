@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block main %}
+{#    нужно переделать кнопку возврата#}
+    <a class="btn btn-secondary" href="/">Вернуться</a>
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <h5>      Добавить клиента</h5>
+        <div class="form-row">
+            <div class="form-group col-md-2 mb-0">
+                {{ form.client.surname|as_crispy_field }}
+            </div>
+            <div class="form-group col-md-2 mb-0">
+                {{ form.client.name|as_crispy_field }}
+            </div>
+            <div class="form-group col-md-2 mb-0">
+                {{ form.client.patronymic|as_crispy_field }}
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-3 mb-0">
+            {{ form.client.phone|as_crispy_field }}
+            </div>
+            <div class="form-group col-md-3 mb-0">
+            {{ form.address.address|as_crispy_field }}
+            </div>
+        </div>
+
+{#        <h5>     Добавить договор клиента</h5>#}
+{#        <div class="form-row">#}
+{#            <div class="form-group col-md-2 mb-0">#}
+{#                {{ form.contract.doc_num|as_crispy_field }}#}
+{#            </div>#}
+{#            <div class="form-group col-md-2 l-0">#}
+{#                {{ form.contract.description|as_crispy_field }}#}
+{#            </div>#}
+{#        </div>#}
+{#        <div class="form-row">#}
+{#            <div class="form-group col-md-2 mb-0">#}
+{#                {{ form.contract.date|as_crispy_field }}#}
+{#            </div>#}
+{#        </div>#}
+{#        <div class="form-row">#}
+{#                        <div class="form-group col-md-2 mb-0">#}
+{#                {{ form.contract.summ|as_crispy_field }}#}
+{#            </div>#}
+{#        </div>#}
+        <button class="btn btn-success">Подтвердить</button>
+
+    </form>
+{% endblock %}
