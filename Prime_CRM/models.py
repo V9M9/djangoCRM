@@ -1,6 +1,6 @@
 from django.db import models
 
-# Create your models here.
+# Create your models here.ч
 
 class Client(models.Model):
     surname = models.CharField(max_length=64, verbose_name="Фамилия")
@@ -9,7 +9,7 @@ class Client(models.Model):
     phone = models.CharField(max_length=20, null=False, blank=False, verbose_name="Номер телефона")
 
     def __str__(self):
-        return '{} {}'.format(self.name, self.phone)
+        return '{} {} {}'.format(self.surname, self.name, self.phone)
 
 class Address(models.Model):
     client_id = models.ForeignKey(Client, on_delete=models.CASCADE)
@@ -28,4 +28,4 @@ class Contract(models.Model):
     doc_num = models.CharField(max_length=30, verbose_name="Номер договора")
 
     def __str__(self):
-        return '{} {} {} {}'.format(self.doc_num, self.date, self.summ, self.description)
+        return '{} {} {} {} {}'.format(self.doc_num, self.date, self.summ, self.description, self.status)

@@ -6,15 +6,15 @@ from django.views.generic import TemplateView, CreateView, UpdateView, DeleteVie
 from django.urls import reverse_lazy
 
 from .models import Client, Address, Contract
-from .tables import ClientsTable
-from .forms import ClientForm, AddressForm, MultiForm
+from .tables import ClientsTable, ContractsTable
+from .forms import ClientForm, AddressForm, MultiForm, ContractForm
 
 
 # Create your views here.
 
 def index(request):
-    clients = Client.objects.annotate(full_name=Concat('surname', V(' '), 'name', V(' '), 'patronymic'))\
-        .values("address__address", 'full_name', 'phone', 'pk')\
+    clients = Client.objects.annotate(full_name=Concat('surname', V(' '), 'name', V(' '), 'patronymic')) \
+        .values("address__address", 'full_name', 'phone', 'pk') \
         .annotate(Min('contract__doc_num'))
     sort = request.GET.get('sort', None)
     if sort:
@@ -28,6 +28,7 @@ def index(request):
     }
 
     return render(request, "index.html", context)
+
 
 class ClientAddView(CreateView):
     form_class = MultiForm
@@ -48,18 +49,14 @@ class ClientAddView(CreateView):
         return redirect('index')
 
 
-
 class ClientUpdateView(UpdateView):
-
     model = Client
     form_class = ClientForm
     success_url = reverse_lazy('index')
     template_name = "client_update_form.html"
 
 
-
 class ClientUpdateView(UpdateView):
-
     model = Client
     form_class = ClientForm
     success_url = reverse_lazy('index')
@@ -67,7 +64,6 @@ class ClientUpdateView(UpdateView):
 
 
 class ClientDeleteView(DeleteView):
-
     model = Client
     template_name = "client_confirm_delete.html"
     success_url = reverse_lazy('index')
@@ -82,9 +78,49 @@ class ClientDeleteView(DeleteView):
 
 def ContractView(request, pk):
     contracts = Contract.objects.all().filter(client_id=pk)
+    client_name = Client.objects.values_list('name', flat=True).filter(id=pk)[0]
+    client_surname = Client.objects.values_list('surname', flat=True).filter(id=pk)[0]
+    client_patronymic = Client.objects.values_list('patronymic', flat=True).filter(id=pk)[0]
+
+    table = ContractsTable(contracts)
+    table.paginate(page=request.GET.get("page", 1), per_page=6)
 
     context = {
+        "client_surname": client_surname,
+        "client_name": client_name,
+        "client_patronymic": client_patronymic,
+        "pk": pk,
         "contracts": contracts,
+        "table": table,
     }
 
     return render(request, "contracts.html", context)
+
+
+class ContractAddView(CreateView):
+    model = Contract
+    form_class = ContractForm
+    template_name = "add_contract.html"
+
+    def get_initial(self):
+        """
+        Returns the initial data to use for forms on this view.
+        """
+        initial = super().get_initial()
+
+        initial['client_id'] = Client.objects.get(pk=self.kwargs['pk'])
+        initial['address_id'] = Address.objects.get(client_id=self.kwargs['pk'])
+        return initial
+
+    def get_success_url(self):
+        print(self.object.client_id.pk)
+        return reverse_lazy('show-contracts', kwargs={'pk': self.kwargs['pk']})
+
+
+class ContractUpdateView(UpdateView):
+    model = Contract
+    form_class = ContractForm
+    template_name = "contract_update_form.html"
+
+    def get_success_url(self):
+        return reverse_lazy('show-contracts', kwargs={'pk': self.object.client_id.pk})
