@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load django_tables2 %}
+{% block main %}
+    <a class="btn btn-secondary" href="/">На домашнюю</a>
+    <h1>Договоры по клиенту {{ client_surname }} {{ client_name }} {{ client_patronymic }}</h1>
+{#    {% for c in contracts %}#}
+{#        <p>{{ c }}</p>#}
+{#    {% endfor %}#}
+    {% render_table table %}
+    <a class="btn btn-secondary" href="{{ 'add_contract/' }}{{ pk }}">Добавить</a>
+{% endblock %}

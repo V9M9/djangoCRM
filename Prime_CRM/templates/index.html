@@ -1,12 +1,16 @@
 {% extends "base.html" %}
 {% load django_tables2 %}
 {% block main %}
-    {% for client in clients %}
-        <p>{{ client }}</p>
-    {% endfor %}
-    <a class="btn btn-secondary" href="{{ add_url }}">Add</a>
+    <h1>Управление клиентами</h1>
+{#    {% for client in clients %}#}
+{#        <p>{{ client }}</p>#}
+{#    {% endfor %}#}
     {% render_table table %}
+    <a class="btn btn-secondary" href="{{ 'add_client' }}">Добавить</a>
+
 {% endblock %}
+
+
 
 
 {% block extra %}
