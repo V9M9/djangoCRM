@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load django_tables2 %}
+{% load crispy_forms_tags %}
+{% block main %}
+    <a class="btn btn-secondary" href="/">На домашнюю</a>
+    <h1>Навигация по всем договорам</h1>
+    <br>
+    <h4>Фильтры</h4>
+    <form action="" method="get">
+    <h6>Адрес</h6>
+    {{ meFilter.form.address }}
+        <h6>Фамилия</h6>
+    {{ meFilter.form.Surname }}
+        <h6>Договор</h6>
+    {{ meFilter.form.doc_num }}
+        <h6>Дата</h6>
+    {{ meFilter.form.date }}
+        <h6>Сумма</h6>
+    {{ meFilter.form.summ }}
+        <h6>Статус:</h6>
+    {{ meFilter.form.status }}
+    <input type="submit" />
+</form>
+    <h7>-----------------------------------------------------------------------------------</h7>
+
+        {% render_table table %}
+
+{#        {% for c in contracts %}#}
+{#            <p>{{ c }}</p>#}
+{#        {% endfor %}#}
+
+
+{% endblock %}

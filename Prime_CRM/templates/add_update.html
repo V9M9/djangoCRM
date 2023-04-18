@@ -4,9 +4,10 @@
 {% block main %}
 {#    нужно переделать кнопку возврата#}
     <a class="btn btn-secondary" href="/">Вернуться</a>
+    <h1>Добавить клиента</h1>
     <form method="post" novalidate>
         {% csrf_token %}
-        <h5>      Добавить клиента</h5>
+        <h5>Добавить клиента</h5>
         <div class="form-row">
             <div class="form-group col-md-2 mb-0">
                 {{ form.client.surname|as_crispy_field }}

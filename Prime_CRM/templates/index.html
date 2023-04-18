@@ -1,13 +1,32 @@
 {% extends "base.html" %}
 {% load django_tables2 %}
+{% load crispy_forms_tags %}
 {% block main %}
     <h1>Управление клиентами</h1>
+
+
+    <form action="" method="get">
+    <h6>Договор</h6>
+    {{ myFilter.form.doc_num }}
+        <h6>Фамилия</h6>
+    {{ myFilter.form.Surname }}
+        <h6>Адрес</h6>
+    {{ myFilter.form.address }}
+        <h6>Телефон</h6>
+    {{ myFilter.form.phone }}
+        <h6>Искать клиента по дате договора</h6>
+    {{ myFilter.form.date }}
+        <h6>Клиенты со статусом договора:</h6>
+    {{ myFilter.form.status }}
+    <input type="submit" />
+</form>
+
 {#    {% for client in clients %}#}
 {#        <p>{{ client }}</p>#}
 {#    {% endfor %}#}
     {% render_table table %}
-    <a class="btn btn-secondary" href="{{ 'add_client' }}">Добавить</a>
-
+    <a class="btn btn-secondary" href="{{ 'add_client' }}">Добавить клиента</a>
+    <a class="btn btn-info" href="{{ 'contracts_all' }}">Навигация по всем договорам</a>
 {% endblock %}
 
 
