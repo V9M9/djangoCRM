@@ -4,7 +4,7 @@
 {% block main %}
 
 <form method="post">{% csrf_token %}
-    <p>Вы действительно хотите удалить клиента "{{ object.surname }} {{ object.name }} {{ object.patronymic }}"?</p>
+    <p>Вы действительно хотите удалить договор "{{ contract.doc_num }}"?</p>
     {{ form }}
     <input class="btn btn-danger btn-sm" type="submit" value="Удалить" >
     <a href="{{ view.get_success_url }}" class="btn btn-success btn-sm">Отмена</a>

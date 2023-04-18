@@ -1,29 +1,38 @@
 from django.db.models.functions import Concat
-from django.db.models import Value as V, Min
+from django.db.models import Value as V, Min, Max
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import TemplateView, CreateView, UpdateView, DeleteView, FormView
 from django.urls import reverse_lazy
 
 from .models import Client, Address, Contract
-from .tables import ClientsTable, ContractsTable
+from .tables import ClientsTable, ClientContractsTable, AllContractsTable
 from .forms import ClientForm, AddressForm, MultiForm, ContractForm
+from .filters import ClientFilter, ContractsFilter
+from rest_framework import filters
 
 
 # Create your views here.
 
+# Вьюшка главной страницы (Таблица клиентов, добавление клиента)
 def index(request):
+
     clients = Client.objects.annotate(full_name=Concat('surname', V(' '), 'name', V(' '), 'patronymic')) \
         .values("address__address", 'full_name', 'phone', 'pk') \
-        .annotate(Min('contract__doc_num'))
+        .annotate(Min('contract__doc_num')).annotate(Max('contract__date'))
     sort = request.GET.get('sort', None)
     if sort:
-        clients = clients.order_by(sort)
+        queryset = clients.order_by(sort)
+
+    myFilter = ClientFilter(request.GET, queryset=clients)
+    clients = myFilter.qs
     table = ClientsTable(clients)
     table.paginate(page=request.GET.get("page", 1), per_page=6)
+
     context = {
         "clients": clients,
         "table": table,
+        "myFilter": myFilter,
 
     }
 
@@ -69,7 +78,7 @@ class ClientDeleteView(DeleteView):
     success_url = reverse_lazy('index')
 
     def post(self, request, *args, **kwargs):
-        if "cancel" in request.POST:
+        if "Отмена" in request.POST:
             url = self.get_success_url()
             return HttpResponseRedirect(url)
         else:
@@ -81,8 +90,9 @@ def ContractView(request, pk):
     client_name = Client.objects.values_list('name', flat=True).filter(id=pk)[0]
     client_surname = Client.objects.values_list('surname', flat=True).filter(id=pk)[0]
     client_patronymic = Client.objects.values_list('patronymic', flat=True).filter(id=pk)[0]
+    client_address = Address.objects.values_list('address', flat=True).filter(client_id=pk)[0]
 
-    table = ContractsTable(contracts)
+    table = ClientContractsTable(contracts)
     table.paginate(page=request.GET.get("page", 1), per_page=6)
 
     context = {
@@ -92,6 +102,7 @@ def ContractView(request, pk):
         "pk": pk,
         "contracts": contracts,
         "table": table,
+        "client_address": client_address,
     }
 
     return render(request, "contracts.html", context)
@@ -113,7 +124,6 @@ class ContractAddView(CreateView):
         return initial
 
     def get_success_url(self):
-        print(self.object.client_id.pk)
         return reverse_lazy('show-contracts', kwargs={'pk': self.kwargs['pk']})
 
 
@@ -124,3 +134,35 @@ class ContractUpdateView(UpdateView):
 
     def get_success_url(self):
         return reverse_lazy('show-contracts', kwargs={'pk': self.object.client_id.pk})
+
+
+
+class ContractDeleteView(DeleteView):
+    model = Contract
+    template_name = "contract_confirm_delete.html"
+
+    def get_success_url(self):
+        return reverse_lazy('show-contracts', kwargs={'pk': self.object.client_id.pk})
+
+
+def ContractsAllView(request):
+    contracts = Contract.objects.annotate(full_name=Concat('client_id__surname', V(' '), 'client_id__name', V(' '), 'client_id__patronymic')) \
+        .values('full_name', 'doc_num', 'date', 'summ', 'description', 'status', 'pk', 'address_id__address', 'client_id')
+
+    sort = request.GET.get('sort', None)
+    if sort:
+        contracts = contracts.order_by(sort)
+
+    meFilter = ContractsFilter(request.GET, queryset=contracts)
+    contracts = meFilter.qs
+
+    table = AllContractsTable(contracts)
+    table.paginate(page=request.GET.get("page", 1), per_page=15)
+
+    context = {
+        "contracts": contracts,
+        "table": table,
+        'meFilter': meFilter
+    }
+
+    return render(request, "contracts_all.html", context)
